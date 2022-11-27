@@ -22,6 +22,8 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IProductService, ProductService>();
 
+builder.Services.AddCors();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -32,6 +34,11 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors(opt =>
+{
+    opt.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:3001");
+});
 
 app.UseAuthorization();
 
