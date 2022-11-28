@@ -1,5 +1,8 @@
+import { Container, CssBaseline, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
+import Catalog from "../../Features/catalog/Catalog";
 import { Product } from "../Models/product";
+import Header from "./Header";
 function App() {
   //It says that our useState is storing an array which is Product and also Product is array as well.
   //Ensure that bost useState and Product (Interface) are declared as array.
@@ -28,22 +31,21 @@ function App() {
         name: "product " + (prevState.length + 1), // Indicate the name for the elements
         price: prevState.length * 100 + 100, // Indicate the price for the elements
         description: "some description",
-        pictureURL: "https://picsum/200",
+        pictureURL: "https://picsum.photos/200/300",
       },
     ]);
   }
 
   return (
-    <div>
-      <h1>Creating New App !</h1>
-      {products.map((product) => (
-        <li key={product.id}>
-          {product.id}: {product.name} - {product.price}
-        </li>
-      ))}
-      {/* add click event to add products and recall addProduct function */}
-      <button onClick={addProduct}>AddProduct</button>
-    </div>
+    <>
+      <CssBaseline />
+      <Header />
+      {/* Container is being used because when we use CssBaseLine, it actually removes margin and padding
+      Adding Container tag will allow the platform to consider some space for the list items */}
+      <Container>
+        <Catalog products={products} addProduct={addProduct} />
+      </Container>
+    </>
   );
 }
 
