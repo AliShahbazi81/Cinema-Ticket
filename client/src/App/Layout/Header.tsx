@@ -1,10 +1,87 @@
-import { AppBar, Toolbar, Typography } from "@mui/material";
+import {
+  AppBar,
+  Badge,
+  Box,
+  IconButton,
+  List,
+  ListItem,
+  Switch,
+  Toolbar,
+  Typography,
+} from "@mui/material";
+import { NavLink } from "react-router-dom";
 
-export default function Header() {
+interface Props {
+  darkMode: boolean;
+  handleThemeChange: () => void;
+}
+
+const midLinks = [
+  { title: "catalog", path: "/catalog" },
+  { title: "about", path: "/about" },
+  { title: "contact", path: "/contact" },
+];
+const rightLinks = [
+  { title: "login", path: "/login" },
+  { title: "register", path: "/register" },
+];
+const navStyles = {
+  color: "inherit",
+  textDecoration: "none",
+  typography: "h6",
+  "&:hover": {
+    color: "secondary.main",
+  },
+  "&.active": {
+    color: "text.secondary",
+  },
+};
+
+export default function Header({ darkMode, handleThemeChange }: Props) {
   return (
     <AppBar position="static" sx={{ mb: 4 }}>
-      <Toolbar>
-        <Typography variant="h6">E-Commerce Store</Typography>
+      <Toolbar
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <Box display="flex" alignItems="center">
+          <Typography
+            variant="h6"
+            exact
+            component={NavLink}
+            to="/"
+            sx={navStyles}
+          >
+            E-Commerce Store
+          </Typography>
+          <Switch value={darkMode} onClick={handleThemeChange} />
+        </Box>
+
+        <List sx={{ display: "flex" }}>
+          {midLinks.map(({ title, path }) => (
+            <ListItem component={NavLink} to={path} key={path} sx={navStyles}>
+              {title.toUpperCase()}
+            </ListItem>
+          ))}
+        </List>
+
+        <Box display="flex" alignItems="center">
+          <IconButton size="large">
+            <Badge badgeContent={4} color={"secondary"}>
+              <Typography fontSize="xl">🛒</Typography>
+            </Badge>
+          </IconButton>
+          <List sx={{ display: "flex" }}>
+            {rightLinks.map(({ title, path }) => (
+              <ListItem component={NavLink} to={path} key={path} sx={navStyles}>
+                {title.toUpperCase()}
+              </ListItem>
+            ))}
+          </List>
+        </Box>
       </Toolbar>
     </AppBar>
   );
