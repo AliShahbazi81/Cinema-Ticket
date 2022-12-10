@@ -6,9 +6,7 @@ using e_Commerce.Services.ProductServices;
 using Microsoft.AspNetCore.Mvc;
 
 namespace e_Commerce.Controllers;
-[ApiController]
-[Route("[controller]")]
-public class ProductController : Controller
+public class ProductController : BaseApiController
 {
     private readonly IProductService _service;
 
@@ -17,10 +15,14 @@ public class ProductController : Controller
         _service = service;
     }
     [HttpGet("GetAllProducts")]
-    public async Task<List<Product>> GetAllProducts()
-    {
-        return await _service.GetAllProducts();
-    }
+    public async Task<List<Product>> GetAllProducts() => await _service.GetAllProducts();
+
     [HttpGet("GetProduct/{id}")]
-    public async Task<Product> GetProduct(int id) => await _service.GetProduct(id);
+    public async Task<ActionResult<Product>> GetProduct(int id)
+    {
+        var product = await _service.GetProduct(id);
+        if (product == null)
+            return NotFound();
+        return product;
+    }
 }

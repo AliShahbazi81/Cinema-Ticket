@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using e_Commerce.Data;
 
@@ -11,9 +12,11 @@ using e_Commerce.Data;
 namespace eCommerce.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20221209174835_AddingBasketAndBasketItems")]
+    partial class AddingBasketAndBasketItems
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -36,32 +39,6 @@ namespace eCommerce.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Baskets");
-                });
-
-            modelBuilder.Entity("e_Commerce.Data.BasketItem", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("BasketId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ProductId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BasketId");
-
-                    b.HasIndex("ProductId");
-
-                    b.ToTable("BasketItems");
                 });
 
             modelBuilder.Entity("e_Commerce.Data.Product", b =>
@@ -108,7 +85,7 @@ namespace eCommerce.Migrations
                         {
                             Id = 1,
                             Brand = "Adidas",
-                            CreationTime = new DateTime(2022, 12, 9, 20, 54, 1, 512, DateTimeKind.Utc).AddTicks(1387),
+                            CreationTime = new DateTime(2022, 12, 9, 17, 48, 35, 39, DateTimeKind.Utc).AddTicks(8612),
                             Description = "This is our 1st Product",
                             IsDeleted = false,
                             Name = "1st Product",
@@ -121,7 +98,7 @@ namespace eCommerce.Migrations
                         {
                             Id = 2,
                             Brand = "Adidas",
-                            CreationTime = new DateTime(2022, 12, 9, 20, 54, 1, 512, DateTimeKind.Utc).AddTicks(1390),
+                            CreationTime = new DateTime(2022, 12, 9, 17, 48, 35, 39, DateTimeKind.Utc).AddTicks(8614),
                             Description = "This is our 2nd Product",
                             IsDeleted = false,
                             Name = "2nd Product",
@@ -134,7 +111,7 @@ namespace eCommerce.Migrations
                         {
                             Id = 4,
                             Brand = "Adidas",
-                            CreationTime = new DateTime(2022, 12, 9, 20, 54, 1, 512, DateTimeKind.Utc).AddTicks(1391),
+                            CreationTime = new DateTime(2022, 12, 9, 17, 48, 35, 39, DateTimeKind.Utc).AddTicks(8616),
                             Description = "This is our 4th Product",
                             IsDeleted = false,
                             Name = "4th Product",
@@ -147,7 +124,7 @@ namespace eCommerce.Migrations
                         {
                             Id = 5,
                             Brand = "Adidas",
-                            CreationTime = new DateTime(2022, 12, 9, 20, 54, 1, 512, DateTimeKind.Utc).AddTicks(1393),
+                            CreationTime = new DateTime(2022, 12, 9, 17, 48, 35, 39, DateTimeKind.Utc).AddTicks(8617),
                             Description = "This is our 5th Product",
                             IsDeleted = false,
                             Name = "5th Product",
@@ -160,7 +137,7 @@ namespace eCommerce.Migrations
                         {
                             Id = 6,
                             Brand = "Adidas",
-                            CreationTime = new DateTime(2022, 12, 9, 20, 54, 1, 512, DateTimeKind.Utc).AddTicks(1395),
+                            CreationTime = new DateTime(2022, 12, 9, 17, 48, 35, 39, DateTimeKind.Utc).AddTicks(8619),
                             Description = "This is our 6th Product",
                             IsDeleted = false,
                             Name = "6th Product",
@@ -173,7 +150,7 @@ namespace eCommerce.Migrations
                         {
                             Id = 7,
                             Brand = "Adidas",
-                            CreationTime = new DateTime(2022, 12, 9, 20, 54, 1, 512, DateTimeKind.Utc).AddTicks(1396),
+                            CreationTime = new DateTime(2022, 12, 9, 17, 48, 35, 39, DateTimeKind.Utc).AddTicks(8621),
                             Description = "This is our 7th Product",
                             IsDeleted = false,
                             Name = "7th Product",
@@ -186,7 +163,7 @@ namespace eCommerce.Migrations
                         {
                             Id = 8,
                             Brand = "Adidas",
-                            CreationTime = new DateTime(2022, 12, 9, 20, 54, 1, 512, DateTimeKind.Utc).AddTicks(1398),
+                            CreationTime = new DateTime(2022, 12, 9, 17, 48, 35, 39, DateTimeKind.Utc).AddTicks(8622),
                             Description = "This is our 8th Product",
                             IsDeleted = false,
                             Name = "8th Product",
@@ -199,7 +176,7 @@ namespace eCommerce.Migrations
                         {
                             Id = 9,
                             Brand = "Adidas",
-                            CreationTime = new DateTime(2022, 12, 9, 20, 54, 1, 512, DateTimeKind.Utc).AddTicks(1399),
+                            CreationTime = new DateTime(2022, 12, 9, 17, 48, 35, 39, DateTimeKind.Utc).AddTicks(8624),
                             Description = "This is our 9th Product",
                             IsDeleted = false,
                             Name = "9th Product",
@@ -212,7 +189,7 @@ namespace eCommerce.Migrations
                         {
                             Id = 10,
                             Brand = "Adidas",
-                            CreationTime = new DateTime(2022, 12, 9, 20, 54, 1, 512, DateTimeKind.Utc).AddTicks(1401),
+                            CreationTime = new DateTime(2022, 12, 9, 17, 48, 35, 39, DateTimeKind.Utc).AddTicks(8625),
                             Description = "This is our 10th Product",
                             IsDeleted = false,
                             Name = "10th Product",
@@ -225,7 +202,7 @@ namespace eCommerce.Migrations
                         {
                             Id = 11,
                             Brand = "Adidas",
-                            CreationTime = new DateTime(2022, 12, 9, 20, 54, 1, 512, DateTimeKind.Utc).AddTicks(1403),
+                            CreationTime = new DateTime(2022, 12, 9, 17, 48, 35, 39, DateTimeKind.Utc).AddTicks(8627),
                             Description = "This is our 11th Product",
                             IsDeleted = false,
                             Name = "11th Product",
@@ -238,7 +215,7 @@ namespace eCommerce.Migrations
                         {
                             Id = 12,
                             Brand = "Adidas",
-                            CreationTime = new DateTime(2022, 12, 9, 20, 54, 1, 512, DateTimeKind.Utc).AddTicks(1404),
+                            CreationTime = new DateTime(2022, 12, 9, 17, 48, 35, 39, DateTimeKind.Utc).AddTicks(8629),
                             Description = "This is our 12th Product",
                             IsDeleted = false,
                             Name = "12th Product",
@@ -251,7 +228,7 @@ namespace eCommerce.Migrations
                         {
                             Id = 13,
                             Brand = "Adidas",
-                            CreationTime = new DateTime(2022, 12, 9, 20, 54, 1, 512, DateTimeKind.Utc).AddTicks(1406),
+                            CreationTime = new DateTime(2022, 12, 9, 17, 48, 35, 39, DateTimeKind.Utc).AddTicks(8630),
                             Description = "This is our 13th Product",
                             IsDeleted = false,
                             Name = "13th Product",
@@ -260,30 +237,6 @@ namespace eCommerce.Migrations
                             QuantityInStock = 1300,
                             Type = "Sports13"
                         });
-                });
-
-            modelBuilder.Entity("e_Commerce.Data.BasketItem", b =>
-                {
-                    b.HasOne("e_Commerce.Data.Basket", "Basket")
-                        .WithMany("BasketItems")
-                        .HasForeignKey("BasketId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("e_Commerce.Data.Product", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Basket");
-
-                    b.Navigation("Product");
-                });
-
-            modelBuilder.Entity("e_Commerce.Data.Basket", b =>
-                {
-                    b.Navigation("BasketItems");
                 });
 #pragma warning restore 612, 618
         }

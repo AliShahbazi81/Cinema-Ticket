@@ -1,4 +1,5 @@
 using e_Commerce.Data;
+using e_Commerce.Middleware;
 using e_Commerce.Services.ProductServices;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
@@ -16,7 +17,6 @@ builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
 });
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -25,6 +25,8 @@ builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddCors();
 
 var app = builder.Build();
+
+app.UseMiddleware<MiddlewareException>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -37,7 +39,7 @@ app.UseHttpsRedirection();
 
 app.UseCors(opt =>
 {
-    opt.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:3000");
+    opt.AllowAnyHeader().AllowAnyMethod().AllowCredentials().WithOrigins("http://localhost:3000");
 });
 
 app.UseAuthorization();
