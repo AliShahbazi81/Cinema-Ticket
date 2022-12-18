@@ -4,7 +4,7 @@ import "./App/Layout/styles.css";
 import App from "./App/Layout/App";
 import reportWebVitals from "./reportWebVitals";
 import { BrowserRouter } from "react-router-dom";
-import { StoreContext, StoreProvider } from "./App/context/StoreContext";
+import { StoreProvider } from "./App/context/StoreContext";
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement

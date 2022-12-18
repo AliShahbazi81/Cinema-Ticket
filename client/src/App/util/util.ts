@@ -4,5 +4,11 @@ export function getCookie(key: string) {
 }
 
 export function currencyFormat(num: number) {
-  return "$" + (num / 100).toFixed(2);
+  return (
+    "$" +
+    (num / 100)
+      .toFixed(2)
+      .toString()
+      .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+  );
 }

@@ -2,8 +2,8 @@ import { Add, DeleteSharp, Remove } from "@mui/icons-material";
 import { LoadingButton } from "@mui/lab";
 import {
   Box,
+  Button,
   Grid,
-  IconButton,
   Paper,
   Table,
   TableBody,
@@ -13,10 +13,12 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { Link } from "react-router-dom";
 import agent from "../../App/api/agent";
 import { useStoreContext } from "../../App/context/StoreContext";
 import { currencyFormat } from "../../App/util/util";
+import CheckoutPage from "../checkout/CheckoutPage";
 import BasketSummary from "./BasketSummary";
 
 export default function BasketPage() {
@@ -37,7 +39,7 @@ export default function BasketPage() {
       .finally(() => setStatus({ loading: false, name: "" }));
   }
 
-  function handleRemoveItem(productId: number, quantity = 1, name: string) {
+  function handleUpdateItem(productId: number, quantity = 1, name: string) {
     setStatus({ loading: true, name });
     agent.Basket.removeItem(productId, quantity)
       .then(() => removeItem(productId, quantity))
@@ -67,6 +69,7 @@ export default function BasketPage() {
                 key={item.productId}
                 sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
               >
+                {/* Name and Picture  */}
                 <TableCell component="th" scope="row">
                   <Box display="flex" alignItems="center">
                     <img
@@ -74,19 +77,32 @@ export default function BasketPage() {
                       alt={item.name}
                       style={{ height: 50, marginRight: 20 }}
                     />
-                    <span>{item.name}</span>
+                    <Link
+                      to={`/catalog/${item.productId}`}
+                      style={{
+                        display: "inline-block",
+                        color: "white",
+                        textDecoration: "none",
+                      }}
+                    >
+                      <span>{item.name}</span>
+                    </Link>
                   </Box>
                 </TableCell>
+
+                {/* Price  */}
                 <TableCell align="right">
                   {currencyFormat(item.price)}
                 </TableCell>
+
+                {/* Quantity  */}
                 <TableCell align="center">
                   <LoadingButton
                     loading={
                       status.loading && status.name === "rem" + item.name
                     }
                     onClick={() =>
-                      handleRemoveItem(item.productId, 1, "rem" + item.name)
+                      handleUpdateItem(item.productId, 1, "rem" + item.name)
                     }
                   >
                     <Remove color="error" />
@@ -103,16 +119,19 @@ export default function BasketPage() {
                     <Add color="primary" />
                   </LoadingButton>
                 </TableCell>
+
+                {/* Subtotal */}
                 <TableCell align="right">
                   {currencyFormat(item.price * item.quantity)}
                 </TableCell>
                 <TableCell align="right">
+                  {/* Remove Icon  */}
                   <LoadingButton
                     loading={
                       status.loading && status.name === "del" + item.name
                     }
                     onClick={() =>
-                      handleRemoveItem(
+                      handleUpdateItem(
                         item.productId,
                         item.quantity,
                         "del" + item.name
@@ -128,10 +147,19 @@ export default function BasketPage() {
           </TableBody>
         </Table>
       </TableContainer>
-      <Grid>
-        <Grid item xs={6} />
+      <Grid container display="flex" flexDirection="row-reverse">
         <Grid item xs={6}>
           <BasketSummary />
+          <Button
+            size="medium"
+            fullWidth
+            variant="contained"
+            color="primary"
+            component={Link}
+            to="/checkout"
+          >
+            Checkout
+          </Button>
         </Grid>
       </Grid>
     </>

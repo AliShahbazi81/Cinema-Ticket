@@ -18,6 +18,7 @@ import { Product } from "../../App/Models/product";
 interface Props {
   product: Product;
 }
+// We are using the LoadingButton component from @mui/lab
 
 export default function ProductCard({ product }: Props) {
   const [loading, setLoading] = useState(false);

@@ -5,7 +5,6 @@ import {
   TableBody,
   TableRow,
   TableCell,
-  Typography,
 } from "@mui/material";
 import { useStoreContext } from "../../App/context/StoreContext";
 import { currencyFormat } from "../../App/util/util";
@@ -19,7 +18,7 @@ export default function BasketSummary() {
 
   return (
     <>
-      <TableContainer component={Paper} variant={"outlined"}>
+      <TableContainer component={Paper} variant={"outlined"} >
         <Table>
           <TableBody>
             <TableRow>

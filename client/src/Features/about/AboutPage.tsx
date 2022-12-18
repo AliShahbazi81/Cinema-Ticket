@@ -11,7 +11,6 @@ import {
 import { Container } from "@mui/system";
 import { useState } from "react";
 import agent from "../../App/api/agent";
-import ContactPage from "../contact/ContactPage";
 
 export default function AboutPage() {
   const [validationErrors, setValidationErrors] = useState<string[]>([]);

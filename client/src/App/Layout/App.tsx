@@ -20,6 +20,7 @@ import { useStoreContext } from "../context/StoreContext";
 import LoadingComponent from "./LoadingComponent";
 import agent from "../api/agent";
 import { getCookie } from "../util/util";
+import CheckoutPage from "../../Features/checkout/CheckoutPage";
 
 function App() {
   // Getting the basket from the context
@@ -68,6 +69,7 @@ function App() {
           <Route exact path={"/contact"} component={ContactPage} />
           <Route exact path={"/catalog"} component={Catalog} />
           <Route exact path={"/basket"} component={BasketPage} />
+          <Route exact path={"/checkout"} component={CheckoutPage} />
           <Route component={NotFound} />
         </Switch>
       </Container>
