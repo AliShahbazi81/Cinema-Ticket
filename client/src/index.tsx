@@ -5,6 +5,10 @@ import App from "./App/Layout/App";
 import reportWebVitals from "./reportWebVitals";
 import { BrowserRouter } from "react-router-dom";
 import { StoreProvider } from "./App/context/StoreContext";
+import { Provider } from "react-redux";
+import { store } from "./App/store/configureStore";
+
+// initialize the store from the configureStore function
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
@@ -13,7 +17,9 @@ root.render(
   <React.StrictMode>
     <BrowserRouter>
       <StoreProvider>
-        <App />
+        <Provider store={store}>
+          <App />
+        </Provider>
       </StoreProvider>
     </BrowserRouter>
   </React.StrictMode>

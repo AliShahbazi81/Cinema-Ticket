@@ -39,6 +39,7 @@ export default function BasketPage() {
       .finally(() => setStatus({ loading: false, name: "" }));
   }
 
+  // This function will handle the update of the quantity of the product in the basket
   function handleUpdateItem(productId: number, quantity = 1, name: string) {
     setStatus({ loading: true, name });
     agent.Basket.removeItem(productId, quantity)
@@ -147,7 +148,7 @@ export default function BasketPage() {
           </TableBody>
         </Table>
       </TableContainer>
-      <Grid container display="flex" flexDirection="row-reverse">
+      <Grid container display="flex" flexDirection="row-reverse" mt={3}>
         <Grid item xs={6}>
           <BasketSummary />
           <Button
