@@ -4,11 +4,16 @@
 
 import { configureStore } from "@reduxjs/toolkit";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
+import { basketSlice } from "../../Features/basket/basketSlice";
+import { catalogSlice } from "../../Features/catalog/catalogSlice";
 import { counterSlice } from "../../Features/contact/counterSlice";
 
 export const store = configureStore({
   reducer: {
     counter: counterSlice.reducer,
+    basket: basketSlice.reducer,
+    //! reducer = slice.reducer && slice.extraReducers
+    catalog: catalogSlice.reducer,
   },
 });
 
@@ -17,5 +22,8 @@ export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
 
 // ?Export hooks that can be reused => use these hooks in the components
+// useDispatch => dispatch an action
+// AppDispatch means => dispatch an action with the type of AppDispatch
 export const useAppDispatch = () => useDispatch<AppDispatch>();
+// useAppSelector => select a state it means
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;

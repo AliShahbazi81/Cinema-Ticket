@@ -10,7 +10,7 @@ import {
   Typography,
 } from "@mui/material";
 import { Link, NavLink } from "react-router-dom";
-import { useStoreContext } from "../context/StoreContext";
+import { useAppSelector } from "../store/configureStore";
 
 interface Props {
   darkMode: boolean;
@@ -40,7 +40,7 @@ const navStyles = {
 
 export default function Header({ darkMode, handleThemeChange }: Props) {
   // Getting the basket from the context
-  const { basket } = useStoreContext();
+  const { basket } = useAppSelector((state) => state.basket);
   /* Getting the total number of items in the basket */
   // reduce() method executes a reducer function (that you provide) on each element of the array, resulting in a single output value.
   const itemCount = basket?.items.reduce(
