@@ -6,6 +6,6 @@ namespace e_Commerce.Services.ProductServices;
 
 public interface IProductService
 {
-    Task<List<Product>> GetAllProducts();
+    Task<List<Product>> GetAllProducts(string orderBy, string searchTrim);
     Task<Product> GetProduct(int id);
 }

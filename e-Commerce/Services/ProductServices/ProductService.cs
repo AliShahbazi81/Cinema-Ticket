@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 using e_Commerce.Data;
+using e_Commerce.Extensions;
 using Microsoft.EntityFrameworkCore;
 
 namespace e_Commerce.Services.ProductServices;
@@ -14,15 +16,14 @@ public class ProductService : IProductService
     {
         _applicationDbContext = applicationDbContext;
     }
-
-    public async Task<List<Product>> GetAllProducts()
-    {
+    
+    public async Task<List<Product>> GetAllProducts(string orderBy, string searchTrim) {
         await using var dbContext = await _applicationDbContext.CreateDbContextAsync();
-        var getAll = await dbContext.Products
-            .AsNoTracking()
-            .ToListAsync();
-        await dbContext.DisposeAsync();
-        return getAll;
+        var query =  dbContext.Products
+            .Sort(orderBy)
+            .Search(searchTrim)
+            .AsQueryable();
+        return await query.ToListAsync();
     }
     public async Task<Product> GetProduct(int id)
     {
