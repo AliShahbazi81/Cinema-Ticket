@@ -71,7 +71,7 @@ namespace e_Commerce.Controllers
             // Generating a new Guid for the cookies
             var buyerId = Guid.NewGuid().ToString();
             // Change the required settings for the cookie
-            var cookiesOption = new CookieOptions{ IsEssential = true, Expires = DateTime.Now.AddDays(30), Secure = true, SameSite = SameSiteMode.None};
+            var cookiesOption = new CookieOptions{ IsEssential = true, Expires = DateTime.Now.AddDays(30), SameSite = SameSiteMode.None, Secure = true};
             // Stick the generated Guid with the cookiesOption 
             Response.Cookies.Append("buyerId", buyerId, cookiesOption);
             // Create the new Basket using generated Guid

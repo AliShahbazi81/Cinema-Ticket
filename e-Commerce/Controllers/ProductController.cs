@@ -15,7 +15,7 @@ public class ProductController : BaseApiController
         _service = service;
     }
     [HttpGet("GetAllProducts")]
-    public async Task<List<Product>> GetAllProducts() => await _service.GetAllProducts();
+    public async Task<List<Product>> GetAllProducts(string orderBy, string searchTrim) => await _service.GetAllProducts(orderBy, searchTrim);
 
     [HttpGet("GetProduct/{id}")]
     public async Task<ActionResult<Product>> GetProduct(int id)
