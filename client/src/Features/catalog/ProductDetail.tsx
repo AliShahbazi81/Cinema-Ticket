@@ -158,7 +158,7 @@ export default function ProductDetails() {
               sx={{ height: "40px", ml: 2 }}
               size="medium"
               variant="contained"
-              loading={status.includes("pending" + product.id)}
+              loading={status.includes("pending" + product.id + "remove")}
             >
               Remove
             </LoadingButton>

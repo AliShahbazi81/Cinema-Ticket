@@ -22,7 +22,7 @@ public class ProductController : BaseApiController
     {
         var product = await _service.GetProduct(id);
         if (product == null)
-            return NotFound();
+            return BadRequest(new ProblemDetails { Title = "Product not found!" });
         return product;
     }
 }

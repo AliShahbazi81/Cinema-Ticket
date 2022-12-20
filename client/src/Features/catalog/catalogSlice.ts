@@ -26,11 +26,11 @@ const productAdapter = createEntityAdapter<Product>();
 // For fetching all the products
 export const fetchProductsAsync = createAsyncThunk<Product[]>(
   "catalog/fetchProductsAsync",
-  async () => {
+  async (_, thunkAPI) => {
     try {
       return await agent.Catalog.list();
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue({ error: error.data });
     }
   }
 );
@@ -38,11 +38,14 @@ export const fetchProductsAsync = createAsyncThunk<Product[]>(
 // For fetching a single product
 export const fetchProductAsync = createAsyncThunk<Product, number>(
   "catalog/fetchProductAsync",
-  async (productId) => {
+  async (productId, thunkAPI) => {
     try {
       return await agent.Catalog.details(productId);
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      // *rejectWithValue => return the error to the slice
+      // *It will be handled in the slice
+      // *Otherwise, it will be handled in the component which will not give us the error
+      return thunkAPI.rejectWithValue({ error: error.data });
     }
   }
 );
@@ -68,8 +71,9 @@ export const catalogSlice = createSlice({
       state.productsLoaded = true;
       state.status = "idle";
     });
-    builder.addCase(fetchProductsAsync.rejected, (state) => {
+    builder.addCase(fetchProductsAsync.rejected, (state, action) => {
       state.status = "rejectedFetchProducts";
+      console.log(action.payload);
     });
     // ?-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_ PRODUCT  -_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
     builder.addCase(fetchProductAsync.pending, (state) => {
@@ -80,8 +84,9 @@ export const catalogSlice = createSlice({
       productAdapter.upsertOne(state, action.payload);
       state.status = "idle";
     });
-    builder.addCase(fetchProductAsync.rejected, (state) => {
+    builder.addCase(fetchProductAsync.rejected, (state, action) => {
       state.status = "rejectedFetchProduct";
+      console.log(action.payload);
     });
   },
 });
