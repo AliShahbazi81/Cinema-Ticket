@@ -1,4 +1,3 @@
-import { Margin } from "@mui/icons-material";
 import { LoadingButton } from "@mui/lab";
 import {
   Divider,
@@ -15,38 +14,34 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import agent from "../../App/api/agent";
-import { useStoreContext } from "../../App/context/StoreContext";
 import NotFound from "../../App/errors/NotFound";
 import LoadingComponent from "../../App/Layout/LoadingComponent";
-import { Product } from "../../App/Models/product";
+import { useAppDispatch, useAppSelector } from "../../App/store/configureStore";
+import {
+  addBasketItemAsync,
+  removeItemBasketAsync,
+} from "../basket/basketSlice";
+import { fetchProductAsync, productSelectors } from "./catalogSlice";
 
 export default function ProductDetails() {
   const { id } = useParams<{ id: string }>();
   // Get the basket from the store context
-  const { basket, setBasket, removeItem } = useStoreContext();
-
-  // Loading state for the product details
-  const [loading, setLoading] = useState(true);
-  // Product details
-  const [product, setProduct] = useState<Product | null>(null);
-
+  const { basket, status } = useAppSelector((state) => state.basket);
+  const dispatch = useAppDispatch();
+  const product = useAppSelector((state) =>
+    productSelectors.selectById(state, parseInt(id))
+  );
+  const { status: productStatus } = useAppSelector((state) => state.catalog);
   // Quantity of the product to either add or update from the basket
   const [quantity, setQuantity] = useState(0);
-  // Loading state for the add/update to basket
-  const [submitting, setSubmitting] = useState(false);
 
   // Find the product in the basket if it exists
   const item = basket?.items.find((x) => x.productId === product?.id);
   useEffect(() => {
     // If the product exists in the basket, set the quantity to the quantity in the basket
     if (item) setQuantity(item.quantity);
-    else setQuantity(0);
-    // Get the product details from the API
-    agent.Catalog.details(parseInt(id))
-      .then((response) => setProduct(response))
-      .catch((error) => console.log(error))
-      .finally(() => setLoading(false));
-  }, [id, item]);
+    if (!product) dispatch(fetchProductAsync(parseInt(id)));
+  }, [id, item, dispatch, product]);
 
   // Handle the input change for the quantity
   function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
@@ -58,35 +53,42 @@ export default function ProductDetails() {
 
   function handleRemoveItem() {
     // Remove the item from the basket
-    setSubmitting(true);
     agent.Basket.removeItem(product!.id, item!.quantity)
-      .then(() => removeItem(product?.id!, item!.quantity))
-      .catch((error) => toast.error(error.data))
-      .finally(() => setSubmitting(false));
+      .then(() =>
+        dispatch(
+          removeItemBasketAsync({
+            productId: product?.id!,
+            quantity: item!.quantity,
+          })
+        )
+      )
+      .catch((error) => toast.error(error.data));
   }
 
   function handleUpdateCart() {
-    // set the submitting state to true
-    setSubmitting(true);
-
     // If the item does not exist in the basket, add it || If the quantity is greater than the quantity in the basket, add the difference
     if (!item || quantity > item.quantity) {
       const updatedQuantity = item ? quantity - item.quantity : quantity;
-      agent.Basket.addItem(product!.id, updatedQuantity)
-        .then((basket) => setBasket(basket))
-        .catch((error) => toast.error(error.data))
-        .finally(() => setSubmitting(false));
+      dispatch(
+        addBasketItemAsync({
+          productId: product?.id!,
+          quantity: updatedQuantity,
+        })
+      );
     } else {
       // If the item exists in the basket, update it
       const updatedQuantity = item.quantity - quantity;
-      agent.Basket.removeItem(product!.id, updatedQuantity)
-        .then(() => removeItem(product?.id!, updatedQuantity))
-        .catch((error) => toast.error(error.data))
-        .finally(() => setSubmitting(false));
+      dispatch(
+        removeItemBasketAsync({
+          productId: product?.id!,
+          quantity: updatedQuantity,
+        })
+      );
     }
   }
 
-  if (loading) return <LoadingComponent message="Loading Product..." />;
+  if (productStatus.includes("pending"))
+    return <LoadingComponent message="Loading Product..." />;
   if (!product) return <NotFound />;
   return (
     <Grid container spacing={6}>
@@ -139,7 +141,7 @@ export default function ProductDetails() {
           <Grid item xs={6} display="flex" alignItems="center">
             <LoadingButton
               disabled={quantity === item?.quantity || quantity === 0}
-              loading={submitting}
+              loading={status.includes("pending" + product.id)}
               sx={{ height: "40px" }}
               color="primary"
               size="medium"
@@ -156,7 +158,7 @@ export default function ProductDetails() {
               sx={{ height: "40px", ml: 2 }}
               size="medium"
               variant="contained"
-              loading={submitting}
+              loading={status.includes("pending" + product.id)}
             >
               Remove
             </LoadingButton>

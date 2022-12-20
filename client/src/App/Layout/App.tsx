@@ -16,15 +16,16 @@ import Header from "./Header";
 import "react-toastify/dist/ReactToastify.css";
 import NotFound from "../errors/NotFound";
 import BasketPage from "../../Features/basket/BasketPage";
-import { useStoreContext } from "../context/StoreContext";
 import LoadingComponent from "./LoadingComponent";
 import agent from "../api/agent";
 import { getCookie } from "../util/util";
 import CheckoutPage from "../../Features/checkout/CheckoutPage";
+import { useAppDispatch } from "../store/configureStore";
+import { setBasket } from "../../Features/basket/basketSlice";
 
 function App() {
   // Getting the basket from the context
-  const { setBasket } = useStoreContext();
+  const dispatch = useAppDispatch();
   const [loading, setLoading] = useState(true);
   // Check if the buyerId cookie is set in the browser
   useEffect(() => {
@@ -32,12 +33,12 @@ function App() {
     if (buyerId) {
       agent.Basket.get()
         .then((basket) => {
-          setBasket(basket);
+          dispatch(setBasket(basket));
           setLoading(false);
         })
         .catch((error) => console.log(error));
     } else setLoading(false);
-  }, [setBasket]);
+  }, [dispatch]);
 
   const [darkMode, setDarkMode] = useState(true);
   const paletteType = darkMode ? "dark" : "light";
