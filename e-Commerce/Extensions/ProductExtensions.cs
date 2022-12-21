@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using e_Commerce.Data;
 
@@ -30,5 +31,27 @@ public static class ProductExtensions
         // Return the query with the search string
         var lowerCaseSearchTrim = searchTrim.ToLower();
         return query.Where(p => p.Name.ToLower().Contains(lowerCaseSearchTrim));
+    }
+
+    public static IQueryable<Product> Filter(this IQueryable<Product> query, string brand, string type)
+    {
+        var brandList = new List<string>();
+        var typeList = new List<string>();
+
+        // Check if the brand string is null or empty
+        if (!string.IsNullOrWhiteSpace(brand))
+            // Split the brand string into an array of strings
+            // AddRange() adds the elements of the specified collection to the end of the List<T>.
+            brandList.AddRange(brand.ToLower().Split(",").ToList());
+        
+        if (!string.IsNullOrWhiteSpace(type))
+            // Split the type string into an array of strings
+            typeList.AddRange(type.ToLower().Split(",").ToList());
+
+        // Return the query with the brand and type strings
+        query = query.Where(p => brandList.Count == 0 || brandList.Contains(p.Brand.ToLower()));
+        query = query.Where(p => typeList.Count == 0 || typeList.Contains(p.Type.ToLower()));
+
+        return query;
     }
 }

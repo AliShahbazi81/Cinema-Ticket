@@ -1,6 +1,5 @@
 using e_Commerce.Data;
 using e_Commerce.Middleware;
-using e_Commerce.Services.ProductServices;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -20,7 +19,6 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddScoped<IProductService, ProductService>();
 
 builder.Services.AddCors();
 
