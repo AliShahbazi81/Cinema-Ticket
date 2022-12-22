@@ -1,5 +1,6 @@
 import axios, { AxiosError, AxiosResponse } from "axios";
 import { toast } from "react-toastify";
+import { PaginatedResponse } from "../Models/pagination";
 
 // Defining the URL which we want to send an API request to
 axios.defaults.baseURL = "https://localhost:7159/api/";
@@ -15,7 +16,18 @@ const sleep = () => new Promise((resolve) => setTimeout(resolve, 500));
 // We used Toast Notification, instead we could have used Console.log
 axios.interceptors.response.use(
   async (response) => {
+    //! Make sure that "pagination" is the same as the one we wrote in the back-end side
     await sleep();
+    const pagination = response.headers["pagination"];
+    // If we have pagination, we should return the response which we get from the server
+    if (pagination) {
+      // We are using JSON.parse to convert the string into object
+      response.data = new PaginatedResponse(
+        response.data,
+        JSON.parse(pagination)
+      );
+      return response;
+    }
     return response;
   },
   (error: AxiosError) => {
@@ -61,14 +73,16 @@ axios.interceptors.response.use(
 // Since we have 4 different kinds of requests, we will define all of them plus
 // their callback functions in the "requests" const
 const requests = {
-  get: (url: string) => axios.get(url).then(responseBody),
+  get: (url: string, params?: URLSearchParams) =>
+    axios.get(url, { params }).then(responseBody),
   post: (url: string, body: {}) => axios.post(url, body).then(responseBody),
   put: (url: string, body: {}) => axios.put(url, body).then(responseBody),
   delete: (url: string) => axios.delete(url).then(responseBody),
 };
 
 const Catalog = {
-  list: () => requests.get("Product"),
+  // URLSearchParams is a built-in object that allows us to create a query string
+  list: (params: URLSearchParams) => requests.get("Product", params),
   details: (id: number) => requests.get(`Product/${id}`),
   filters: () => requests.get("Product/filters"),
 };
