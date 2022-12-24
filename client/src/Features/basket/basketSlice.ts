@@ -1,6 +1,7 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice, isAnyOf } from "@reduxjs/toolkit";
 import agent from "../../App/api/agent";
 import { Basket } from "../../App/Models/basket";
+import { getCookie } from "../../App/util/util";
 
 interface BasketState {
   basket: Basket | null;
@@ -12,6 +13,23 @@ const initialState: BasketState = {
   status: "idle",
 };
 
+export const fetchBasketAsync = createAsyncThunk<Basket>(
+  "basket/fetchBasketAsync",
+  async (_, thunkAPI) => {
+    try {
+      return await agent.Basket.get();
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue({ error: error.data });
+    }
+  },
+  {
+    // Check if buyerid key is not in the cookies
+    condition: () => {
+      // Stored in the util.ts file
+      if (!getCookie("buyerId")) return false;
+    },
+  }
+);
 // ?Create an async thunk => it returns a promise
 // async (arg: { productId: number; quantity: number }) => Basket
 // After creating the basket, it returns a payload of type Basket
@@ -59,18 +77,6 @@ export const basketSlice = createSlice({
         state.status = "pendingAddItem" + action.meta.arg.productId;
         console.log(action);
       });
-    // *fulfilled => when the async thunk is fulfilled
-    builder.addCase(addBasketItemAsync.fulfilled, (state, action) => {
-      state.status = "idle";
-      // *action.payload => the payload of the async thunk => Basket
-      state.basket = action.payload;
-    });
-    // *rejected => when the async thunk is rejected
-    builder.addCase(addBasketItemAsync.rejected, (state, action) => {
-      console.log(action.payload);
-      state.status = "failed";
-    });
-
     // ?-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_ REMOVE  -_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
 
     builder.addCase(removeItemBasketAsync.pending, (state, action) => {
@@ -97,6 +103,25 @@ export const basketSlice = createSlice({
       console.log(action.payload);
       state.status = "failed";
     });
+
+    // ?-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_ MATCHER  -_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
+    // *fulfilled => when the async thunk is fulfilled
+    builder.addMatcher(
+      isAnyOf(fetchBasketAsync.fulfilled, addBasketItemAsync.fulfilled),
+      (state, action) => {
+        state.status = "idle";
+        // *action.payload => the payload of the async thunk => Basket
+        state.basket = action.payload;
+      }
+    );
+    // *rejected => when the async thunk is rejected
+    builder.addMatcher(
+      isAnyOf(fetchBasketAsync.rejected, addBasketItemAsync.rejected),
+      (state, action) => {
+        console.log(action.payload);
+        state.status = "failed";
+      }
+    );
   },
 });
 

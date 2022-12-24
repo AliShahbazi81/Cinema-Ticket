@@ -4,7 +4,7 @@ import {
   CssBaseline,
   ThemeProvider,
 } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Route, Switch } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import AboutPage from "../../Features/about/AboutPage";
@@ -17,28 +17,32 @@ import "react-toastify/dist/ReactToastify.css";
 import NotFound from "../errors/NotFound";
 import BasketPage from "../../Features/basket/BasketPage";
 import LoadingComponent from "./LoadingComponent";
-import agent from "../api/agent";
-import { getCookie } from "../util/util";
 import CheckoutPage from "../../Features/checkout/CheckoutPage";
 import { useAppDispatch } from "../store/configureStore";
-import { setBasket } from "../../Features/basket/basketSlice";
+import { fetchBasketAsync } from "../../Features/basket/basketSlice";
+import Login from "../../Features/account/Login";
+import Register from "../../Features/account/Register";
+import { fetchCurrentUser } from "../../Features/account/accountSlice";
 
 function App() {
   // Getting the basket from the context
   const dispatch = useAppDispatch();
   const [loading, setLoading] = useState(true);
+
+  // useCallback is used to prevent the function from being recreated on every render
+  async function initApp() {
+    try {
+      await dispatch(fetchCurrentUser());
+      await dispatch(fetchBasketAsync());
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   // Check if the buyerId cookie is set in the browser
   useEffect(() => {
-    const buyerId = getCookie("buyerId");
-    if (buyerId) {
-      agent.Basket.get()
-        .then((basket) => {
-          dispatch(setBasket(basket));
-          setLoading(false);
-        })
-        .catch((error) => console.log(error));
-    } else setLoading(false);
-  }, [dispatch]);
+    initApp().then(() => setLoading(false));
+  }, []);
 
   const [darkMode, setDarkMode] = useState(true);
   const paletteType = darkMode ? "dark" : "light";
@@ -71,6 +75,8 @@ function App() {
           <Route exact path={"/catalog"} component={Catalog} />
           <Route exact path={"/basket"} component={BasketPage} />
           <Route exact path={"/checkout"} component={CheckoutPage} />
+          <Route exact path={"/login"} component={Login} />
+          <Route exact path={"/register"} component={Register} />
           <Route component={NotFound} />
         </Switch>
       </Container>
