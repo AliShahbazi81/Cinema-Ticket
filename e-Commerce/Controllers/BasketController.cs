@@ -31,8 +31,7 @@ namespace e_Commerce.Controllers
         public async Task<ActionResult> AddItemToBasket(int productId, int quantity)
         {
             // Get basket || Create basket
-            var basket = await RetrieveBasket();
-            if (basket == null) basket = CreateNewBasket();
+            var basket = await RetrieveBasket() ?? CreateNewBasket();
             // Get product
             var product = await _context.Products.FindAsync(productId);
             if (product == null) return NotFound();
