@@ -1,5 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Security.Authentication;
+using System.Security.Claims;
 using System.Text;
 using e_Commerce.Data;
 using e_Commerce.Middleware;
@@ -66,19 +69,51 @@ builder.Services.AddIdentity<User, IdentityRole>(opt => { opt.User.RequireUnique
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
     .AddJwtBearer(opt =>
     {
+        opt.RequireHttpsMetadata = false;
+        opt.SaveToken = true;
         opt.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidateIssuer = false,
+            ValidateIssuer = true,
             ValidateAudience = false,
-            // This will validate the signature of the token and if the SigningKey is not equal with the one in the token, it will throw an exception
-            ValidateIssuerSigningKey = true,
             ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = "localhost",
+            ValidAudience = "localhost",
+            // This will validate the signature of the token and if the SigningKey is not equal with the one in the token, it will throw an exception
+            // ValidateIssuerSigningKey = true,
             //! builder.Configuration must be equal with the one that we created in the TokenService
             IssuerSigningKey =
-                new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWTSettings:TokenKey"]))
+                new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWTSettings:TokenKey"])),
+            TokenDecryptionKey =
+                new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWTSettings:EncryptKey"]))
+        };
+        opt.Events = new JwtBearerEvents
+        {
+            OnAuthenticationFailed = context => throw new AuthenticationException("Authentication failed."),
+            OnTokenValidated = async context =>
+            {
+                var signInManager = context.HttpContext.RequestServices
+                    .GetRequiredService<SignInManager<User>>();
+
+                var claimsIdentity = context.Principal.Identity as ClaimsIdentity;
+                if (claimsIdentity.Claims?.Any() != true)
+                    context.Fail("This token has no claims.");
+
+                var securityStamp = claimsIdentity.FindFirst(new ClaimsIdentityOptions().SecurityStampClaimType);
+                if (securityStamp == null)
+                    context.Fail("This token has no security stamp");
+
+                var validatedUser = await signInManager.ValidateSecurityStampAsync(context.Principal);
+                if (validatedUser == null)
+                    context.Fail("Token security stamp is not valid.");
+            }
         };
     });
 
@@ -112,6 +147,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseRouting();
 
 app.UseCors(opt => { opt.AllowAnyHeader().AllowAnyMethod().AllowCredentials().WithOrigins("http://localhost:3000"); });
 

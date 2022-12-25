@@ -11,8 +11,8 @@ namespace e_Commerce.Controllers;
 
 public class AccountController : BaseApiController
 {
-    private readonly UserManager<User> _userManager;
     private readonly TokenService _tokenService;
+    private readonly UserManager<User> _userManager;
 
     public AccountController(UserManager<User> userManager, TokenService tokenService)
     {
@@ -25,29 +25,29 @@ public class AccountController : BaseApiController
     {
         // check if user exists
         var user = await _userManager.FindByNameAsync(loginDto.userName);
-        
+
         // if user does not exist OR password is incorrect
-        if(user == null || !await _userManager.CheckPasswordAsync(user, loginDto.password))
-            return Unauthorized("Invalid username or password");
+        if (user == null || !await _userManager.CheckPasswordAsync(user, loginDto.password))
+            return Unauthorized();
 
         return new UserDto
         {
             Email = user.Email,
-            Token = await _tokenService.GenerateToken(user),
+            Token = await _tokenService.GenerateToken(user)
         };
     }
-    
+
     [HttpPost("register")]
     public async Task<ActionResult> Register(RegisterDto registerDto)
     {
         // check if the username is taken
-        if(await _userManager.Users.AnyAsync(x => x.UserName == registerDto.userName))
+        if (await _userManager.Users.AnyAsync(x => x.UserName == registerDto.userName))
             return BadRequest("Username is taken");
 
         // check if the email is taken
-        if(await _userManager.Users.AnyAsync(x => x.Email == registerDto.email))
+        if (await _userManager.Users.AnyAsync(x => x.Email == registerDto.email))
             return BadRequest("Email is taken");
-        
+
         // If not, create a new user
         var user = new User
         {
@@ -67,9 +67,9 @@ public class AccountController : BaseApiController
                 ModelState.AddModelError(error.Code, error.Description);
             return ValidationProblem();
         }
-        
+
         // AddToRoleAsync() method is used to add a user to a role
-        await _userManager.AddToRolesAsync(user,new[] { "Member", "Admin" });
+        await _userManager.AddToRolesAsync(user, new[] { "Member", "Admin" });
         return StatusCode(201);
     }
 
@@ -83,7 +83,7 @@ public class AccountController : BaseApiController
         return new UserDto
         {
             Email = user.Email,
-            Token = await _tokenService.GenerateToken(user),
+            Token = await _tokenService.GenerateToken(user)
         };
     }
 }
