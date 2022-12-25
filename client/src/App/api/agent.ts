@@ -1,15 +1,28 @@
 import axios, { AxiosError, AxiosResponse } from "axios";
 import { toast } from "react-toastify";
 import { PaginatedResponse } from "../Models/pagination";
+import { store } from "../store/configureStore";
 
 // Defining the URL which we want to send an API request to
-axios.defaults.baseURL = "https://localhost:7159/api/";
+axios.defaults.baseURL = "https://localhost:44374/api/";
 axios.defaults.withCredentials = true;
 
 // responseBody is responsible to hold the response from the server
 const responseBody = (response: AxiosResponse) => response.data;
 
 const sleep = () => new Promise((resolve) => setTimeout(resolve, 500));
+
+// !IMPORTANT: We are using interceptors to get the user's token from  the store
+// ! This will prevent the application from forcing the user to login
+// ! every time the user refreshes the page
+axios.interceptors.request.use((config) => {
+  const token = store.getState().account.user?.token;
+  if (token) config.headers!.Authorization = `Bearer ${token}`;
+
+  // Else => we do not have any token, we will not send any request to the server
+  // The condition is written in the reducer down below
+  return config;
+});
 
 // If the response was 2xx range, return the response,
 // Otherwise, handle the error based on the written conditions
@@ -52,11 +65,11 @@ axios.interceptors.response.use(
         toast.error(data.title);
         break;
       case 401:
-        toast.success(data.title);
+        toast.error(data.title);
         break;
 
       case 404:
-        toast.info(data.title);
+        toast.error(data.title);
         break;
 
       case 500:
@@ -103,10 +116,20 @@ const Basket = {
     requests.delete(`Basket?productId=${productId}&quantity=${quantity}`),
 };
 
+const Account = {
+  // Sending the user object to the server => Username and Password
+  login: (user: any) => requests.post("Account/login", user),
+  // Sending the user object to the server => Username, Password, Email
+  register: (user: any) => requests.post("Account/register", user),
+  // If the user is found, Email and token will be returned
+  current: () => requests.get("Account/currentUser"),
+};
+
 const agent = {
   Catalog,
   TestErrors,
   Basket,
+  Account,
 };
 
 export default agent;

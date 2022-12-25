@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import { Link, NavLink } from "react-router-dom";
 import { useAppSelector } from "../store/configureStore";
+import SignedInMenu from "./SignedInMenu";
 
 interface Props {
   darkMode: boolean;
@@ -41,6 +42,7 @@ const navStyles = {
 export default function Header({ darkMode, handleThemeChange }: Props) {
   // Getting the basket from the context
   const { basket } = useAppSelector((state) => state.basket);
+  const { user } = useAppSelector((state) => state.account);
   /* Getting the total number of items in the basket */
   // reduce() method executes a reducer function (that you provide) on each element of the array, resulting in a single output value.
   const itemCount = basket?.items.reduce(
@@ -83,13 +85,22 @@ export default function Header({ darkMode, handleThemeChange }: Props) {
               <Typography fontSize="xl">🛒</Typography>
             </Badge>
           </IconButton>
-          <List sx={{ display: "flex" }}>
-            {rightLinks.map(({ title, path }) => (
-              <ListItem component={NavLink} to={path} key={path} sx={navStyles}>
-                {title.toUpperCase()}
-              </ListItem>
-            ))}
-          </List>
+          {user ? (
+            <SignedInMenu />
+          ) : (
+            <List sx={{ display: "flex" }}>
+              {rightLinks.map(({ title, path }) => (
+                <ListItem
+                  component={NavLink}
+                  to={path}
+                  key={path}
+                  sx={navStyles}
+                >
+                  {title.toUpperCase()}
+                </ListItem>
+              ))}
+            </List>
+          )}
         </Box>
       </Toolbar>
     </AppBar>
