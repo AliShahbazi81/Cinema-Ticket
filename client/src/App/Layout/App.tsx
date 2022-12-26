@@ -23,6 +23,7 @@ import { fetchBasketAsync } from "../../Features/basket/basketSlice";
 import Login from "../../Features/account/Login";
 import Register from "../../Features/account/Register";
 import { fetchCurrentUser } from "../../Features/account/accountSlice";
+import { PrivateRoute } from "./PrivateRoute";
 
 function App() {
   // Getting the basket from the context
@@ -30,19 +31,19 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   // useCallback is used to prevent the function from being recreated on every render
-  async function initApp() {
+  const initApp = useCallback(async () => {
     try {
       await dispatch(fetchCurrentUser());
       await dispatch(fetchBasketAsync());
     } catch (error) {
       console.log(error);
     }
-  }
+  }, [dispatch]);
 
   // Check if the buyerId cookie is set in the browser
   useEffect(() => {
     initApp().then(() => setLoading(false));
-  }, []);
+  }, [initApp]);
 
   const [darkMode, setDarkMode] = useState(true);
   const paletteType = darkMode ? "dark" : "light";
@@ -74,7 +75,7 @@ function App() {
           <Route exact path={"/contact"} component={ContactPage} />
           <Route exact path={"/catalog"} component={Catalog} />
           <Route exact path={"/basket"} component={BasketPage} />
-          <Route exact path={"/checkout"} component={CheckoutPage} />
+          <PrivateRoute exact path={"/checkout"} component={CheckoutPage} />
           <Route exact path={"/login"} component={Login} />
           <Route exact path={"/register"} component={Register} />
           <Route component={NotFound} />

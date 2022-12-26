@@ -6,22 +6,41 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { Paper } from "@mui/material";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { LoadingButton } from "@mui/lab";
 import agent from "../../App/api/agent";
+import { toast } from "react-toastify";
 
-//! Since React hooks and useStates take about 16000ms to load, we will use REact-hook-form instead
+//! Since React hooks and useStates take about 16000ms to load, we will use React-hook-form instead
 // which takes only 3800ms to load
 export default function Register() {
   //   const history = useHistory();
+  const history = useHistory();
   const {
     register,
     handleSubmit,
+    setError,
     formState: { isSubmitting, errors, isValid },
   } = useForm({
     mode: "all",
   });
+
+  function handleApiErrors(errors: any) {
+    // !We have to specify the type of errors because it can be either an ARRAY or a string
+    // If we do not write down the isArray, we will face an error -> typeError
+    if (Array.isArray(errors)) {
+      errors.forEach((error: string) => {
+        if (error.includes("Password")) {
+          setError("password", { message: error });
+        } else if (error.includes("Email")) {
+          setError("email", { message: error });
+        } else if (error.includes("Username")) {
+          setError("username", { message: error });
+        }
+      });
+    }
+  }
 
   return (
     <Container
@@ -42,7 +61,15 @@ export default function Register() {
       </Typography>
       <Box
         component="form"
-        onSubmit={handleSubmit((data) => agent.Account.register(data))}
+        onSubmit={handleSubmit((data) =>
+          // The error will be handled by the handleApiErrors function
+          agent.Account.register(data)
+            .then(() => {
+              toast.success("Registration successful, you may now login!");
+              history.push("/login");
+            })
+            .catch((error) => handleApiErrors(error))
+        )}
         noValidate
         sx={{ mt: 1 }}
       >
@@ -59,7 +86,13 @@ export default function Register() {
           margin="normal"
           fullWidth
           label="Email"
-          {...register("email", { required: "Email is required!" })}
+          {...register("email", {
+            required: "Email is required!",
+            pattern: {
+              value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+              message: "Invalid email address",
+            },
+          })}
           error={!!errors.email}
           helperText={errors.email?.message?.toString()}
         />
@@ -69,7 +102,15 @@ export default function Register() {
           label="Password"
           type="password"
           autoComplete="current-password"
-          {...register("password", { required: "Password is required!" })}
+          {...register("password", {
+            required: "Password is required!",
+            pattern: {
+              value:
+                /(?=^.{6,15}$)(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&amp;*()_+}{&quot;:;'?/&gt;.&lt;,])(?!.*\s).*$/,
+              message:
+                "Password must be 6-15 characters long, contain a number, an uppercase letter, a lowercase letter and a special character",
+            },
+          })}
           error={!!errors.password}
           helperText={errors.password?.message?.toString()}
         />

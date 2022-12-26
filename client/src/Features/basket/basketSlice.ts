@@ -67,6 +67,9 @@ export const basketSlice = createSlice({
     setBasket: (state, action) => {
       state.basket = action.payload;
     },
+    clearBasket: (state) => {
+      state.basket = null;
+    },
   },
   // *Handle async thunks
   extraReducers: (builder) => {
@@ -95,7 +98,6 @@ export const basketSlice = createSlice({
 
       if (state.basket!.items[index].quantity <= 0)
         state.basket?.items.splice(index, 1);
-
       state.status = "idle";
     });
 
@@ -125,4 +127,4 @@ export const basketSlice = createSlice({
   },
 });
 
-export const { setBasket } = basketSlice.actions;
+export const { setBasket, clearBasket } = basketSlice.actions;
