@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using e_Commerce.Data;
 using e_Commerce.DTOs;
+using e_Commerce.Extensions;
 using e_Commerce.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -11,13 +12,15 @@ namespace e_Commerce.Controllers;
 
 public class AccountController : BaseApiController
 {
+    private readonly ApplicationDbContext _dbContext;
     private readonly TokenService _tokenService;
     private readonly UserManager<User> _userManager;
 
-    public AccountController(UserManager<User> userManager, TokenService tokenService)
+    public AccountController(UserManager<User> userManager, TokenService tokenService, ApplicationDbContext dbContext)
     {
         _userManager = userManager;
         _tokenService = tokenService;
+        _dbContext = dbContext;
     }
 
     [HttpPost("login")]
@@ -30,10 +33,27 @@ public class AccountController : BaseApiController
         if (user == null || !await _userManager.CheckPasswordAsync(user, loginDto.password))
             return Unauthorized();
 
+        // We have 2 kinds of users, Registered users and anonymous users
+        // Registered users => card will be sticked to their username 
+        // Anonymous users => card will be sticked to their cookies
+        var userBasket = await RetrieveBasket(loginDto.userName);
+        var anonBasket = await RetrieveBasket(Request.Cookies["buyerId"]);
+
+        if (anonBasket != null)
+        {
+            if (userBasket != null) _dbContext.Baskets.Remove(userBasket);
+            anonBasket.UserId = user.UserName;
+            Response.Cookies.Delete("buyerId");
+            await _dbContext.SaveChangesAsync();
+        }
+
+        // After login, email, token and basket will be returned to the user.
+        // Client side should be ready to receive these values.
         return new UserDto
         {
             Email = user.Email,
-            Token = await _tokenService.GenerateToken(user)
+            Token = await _tokenService.GenerateToken(user),
+            Basket = anonBasket != null ? anonBasket.MapBasketToDto() : userBasket?.MapBasketToDto()
         };
     }
 
@@ -80,10 +100,31 @@ public class AccountController : BaseApiController
     {
         var user = await _userManager.FindByNameAsync(User.Identity.Name);
 
+        // After login, email, token and basket will be returned to the user.
+        var userBasket = await RetrieveBasket(User.Identity.Name);
+
         return new UserDto
         {
             Email = user.Email,
-            Token = await _tokenService.GenerateToken(user)
+            Token = await _tokenService.GenerateToken(user),
+            Basket = userBasket?.MapBasketToDto()
         };
+    }
+
+    // This method will be used to retrieve the basket of the user
+    // It is better to separate because it is being used in Account and Basket controller
+    private async Task<Basket> RetrieveBasket(string buyerId)
+    {
+        if (string.IsNullOrEmpty(buyerId))
+        {
+            Response.Cookies.Delete("buyerId");
+            return null;
+        }
+
+        var basket = await _dbContext.Baskets
+            .Include(i => i.BasketItems)
+            .ThenInclude(p => p.Product)
+            .FirstOrDefaultAsync(x => x.UserId == buyerId);
+        return basket;
     }
 }

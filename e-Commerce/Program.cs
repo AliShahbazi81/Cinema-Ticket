@@ -65,8 +65,8 @@ builder.Services.AddSwaggerGen(opt =>
 builder.Services.AddCors();
 // Add Identity => User => when we want to use Identity
 // ! Priority is important for adding these 3 services
-builder.Services.AddIdentity<User, IdentityRole>(opt => { opt.User.RequireUniqueEmail = true; })
-    .AddRoles<IdentityRole>()
+builder.Services.AddIdentity<User, Role>(opt => { opt.User.RequireUniqueEmail = true; })
+    .AddRoles<Role>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
 builder.Services.AddAuthentication(options =>
