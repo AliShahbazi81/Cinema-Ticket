@@ -24,6 +24,7 @@ import Login from "../../Features/account/Login";
 import Register from "../../Features/account/Register";
 import { fetchCurrentUser } from "../../Features/account/accountSlice";
 import { PrivateRoute } from "./PrivateRoute";
+import Orders from "../../Features/orders/Orders";
 
 function App() {
   // Getting the basket from the context
@@ -76,6 +77,7 @@ function App() {
           <Route exact path={"/catalog"} component={Catalog} />
           <Route exact path={"/basket"} component={BasketPage} />
           <PrivateRoute exact path={"/checkout"} component={CheckoutPage} />
+          <PrivateRoute exact path={"/orders"} component={Orders} />
           <Route exact path={"/login"} component={Login} />
           <Route exact path={"/register"} component={Register} />
           <Route component={NotFound} />

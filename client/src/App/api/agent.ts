@@ -123,6 +123,14 @@ const Account = {
   register: (user: any) => requests.post("Account/register", user),
   // If the user is found, Email and token will be returned
   current: () => requests.get("Account/currentUser"),
+  // Fetching the saved address of the user
+  fetchAddress: () => requests.get("account/savedAddress")
+};
+
+const Orders = {
+  list: () => requests.get("orders"),
+  fetch: (id: number) => requests.get(`orders/${id}`),
+  create: (order: any) => requests.post("orders", order),
 };
 
 const agent = {
@@ -130,6 +138,7 @@ const agent = {
   TestErrors,
   Basket,
   Account,
+  Orders,
 };
 
 export default agent;
