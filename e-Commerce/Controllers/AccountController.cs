@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using e_Commerce.Data;
 using e_Commerce.DTOs;
 using e_Commerce.Extensions;
@@ -109,6 +110,16 @@ public class AccountController : BaseApiController
             Token = await _tokenService.GenerateToken(user),
             Basket = userBasket?.MapBasketToDto()
         };
+    }
+
+    [Authorize]
+    [HttpGet("savedAddress")]
+    public async Task<ActionResult<UserAddress>> GetSavedAddress()
+    {
+        return await _userManager.Users
+            .Where(x => x.UserName == User.Identity.Name)
+            .Select(x => x.Address)
+            .FirstOrDefaultAsync();
     }
 
     // This method will be used to retrieve the basket of the user

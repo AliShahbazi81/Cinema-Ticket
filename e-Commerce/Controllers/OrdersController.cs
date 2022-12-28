@@ -22,17 +22,21 @@ public class OrdersController : BaseApiController
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<Order>>> GetOrders()
+    public async Task<ActionResult<List<OrderDto>>> GetOrders()
     {
-        return await _dbContext.Orders.ToListAsync();
+        return await _dbContext.Orders
+            .ProjectOrderToOrderDto()
+            .Where(x => x.BuyerId == User.Identity.Name)
+            .ToListAsync();
+        ;
     }
 
     // Since we know only logged in users can see the orders, we can check if their username is the same as the one in the order
     [HttpGet("{id}", Name = "GetOrder")]
-    public async Task<ActionResult<Order>> GetOrder(int id)
+    public async Task<ActionResult<OrderDto>> GetOrder(int id)
     {
         return await _dbContext.Orders
-            .Include(o => o.OrderItems)
+            .ProjectOrderToOrderDto()
             .Where(b => b.BuyerId == User.Identity.Name && b.Id == id)
             .FirstOrDefaultAsync();
     }
@@ -88,7 +92,7 @@ public class OrdersController : BaseApiController
             var user = await _dbContext.Users
                 .Include(a => a.Address)
                 .FirstOrDefaultAsync(x => x.UserName == User.Identity.Name);
-            user.Address = new UserAddress
+            var address = new UserAddress
             {
                 FullName = orderDto.ShippingAddress.FullName,
                 Address1 = orderDto.ShippingAddress.Address1,
@@ -99,6 +103,7 @@ public class OrdersController : BaseApiController
                 Country = orderDto.ShippingAddress.Country
             };
 
+            user.Address = address;
             _dbContext.Users.Update(user);
         }
 
