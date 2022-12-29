@@ -12,4 +12,6 @@ export interface Basket {
   id: number;
   userId: string;
   items: BasketItem[];
+  peymentIntentId?: string;
+  clientSecret?: string;
 }

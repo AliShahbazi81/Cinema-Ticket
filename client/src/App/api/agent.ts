@@ -124,7 +124,7 @@ const Account = {
   // If the user is found, Email and token will be returned
   current: () => requests.get("Account/currentUser"),
   // Fetching the saved address of the user
-  fetchAddress: () => requests.get("account/savedAddress")
+  fetchAddress: () => requests.get("account/savedAddress"),
 };
 
 const Orders = {
@@ -133,12 +133,17 @@ const Orders = {
   create: (order: any) => requests.post("orders", order),
 };
 
+const Payments = {
+  createPaymentIntent: () => requests.post("Payment", {}),
+};
+
 const agent = {
   Catalog,
   TestErrors,
   Basket,
   Account,
   Orders,
+  Payments,
 };
 
 export default agent;

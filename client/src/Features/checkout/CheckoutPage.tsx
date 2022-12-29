@@ -15,10 +15,15 @@ import Review from "./Review";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { validationSchema } from "./checkoutValidation";
 import agent from "../../App/api/agent";
-import { useAppDispatch } from "../../App/store/configureStore";
+import { useAppDispatch, useAppSelector } from "../../App/store/configureStore";
 import { clearBasket } from "../basket/basketSlice";
 import { LoadingButton } from "@mui/lab";
 import { StripeElementType } from "@stripe/stripe-js";
+import {
+  CardNumberElement,
+  useElements,
+  useStripe,
+} from "@stripe/react-stripe-js";
 
 const steps = ["Shipping address", "Review your order", "Payment details"];
 
@@ -27,6 +32,14 @@ export default function CheckoutPage() {
   const [orderNumber, setOrderNumber] = useState(0);
   const [loading, setLoading] = useState(false);
   const dispatch = useAppDispatch();
+  const [paymentMessage, setPaymentMessage] = useState("");
+  const [paymentSucceeded, setPaymentSucceeded] = useState(false);
+  // It stores our client secret and we need to send it to stripe to confirm the payment
+  const { basket } = useAppSelector((state) => state.basket);
+  // It allows us to create actual payment
+  const stripe = useStripe();
+  // Giving the card details
+  const elements = useElements();
 
   // These two properties will be used for validating the card details in Stripe
   const [cardState, setCardState] = useState<{
@@ -90,11 +103,25 @@ export default function CheckoutPage() {
     });
   }, [methods]);
 
-  const handleNext = async (data: FieldValues) => {
+  async function submitOrder(data: FieldValues) {
+    setLoading(true);
     const { nameOnCard, saveAddress, ...shippingAddress } = data;
-    if (activeStep == steps.length - 1) {
-      setLoading(true);
-      try {
+    if (!elements || !stripe) return; // => if there is no stripe or elements, then return because stripe is not ready yet
+    try {
+      const cardElement = elements.getElement(CardNumberElement);
+      const paymentResult = await stripe.confirmCardPayment(
+        basket?.clientSecret!,
+        {
+          payment_method: {
+            card: cardElement!,
+            billing_details: {
+              name: nameOnCard,
+            },
+          },
+        }
+      );
+      console.log(paymentResult);
+      if (paymentResult.paymentIntent?.status === "succeeded") {
         // Create order using nameOnCard and shippingAddress
         const orderNumber = await agent.Orders.create({
           nameOnCard,
@@ -102,16 +129,28 @@ export default function CheckoutPage() {
         });
         // Save orderNumber in the state
         setOrderNumber(orderNumber);
+        setPaymentSucceeded(true);
+        setPaymentMessage("We have received your payment!");
         setActiveStep(activeStep + 1);
         // Delete the basket after creating the order
         //! Remember that we will also delete the basket after creating the basket in the backend
         dispatch(clearBasket());
         setLoading(false);
-      } catch (error) {
-        console.log(error);
+      } else {
+        setPaymentMessage(paymentResult.error?.message!);
+        setPaymentSucceeded(false);
         setLoading(false);
+        setActiveStep(activeStep + 1);
       }
-    } else setActiveStep(activeStep + 1);
+    } catch (error) {
+      console.log(error);
+      setLoading(false);
+    }
+  }
+
+  const handleNext = async (data: FieldValues) => {
+    if (activeStep == steps.length - 1) await submitOrder(data);
+    else setActiveStep(activeStep + 1);
   };
 
   const handleBack = () => {
@@ -150,13 +189,19 @@ export default function CheckoutPage() {
           {activeStep === steps.length ? (
             <>
               <Typography variant="h5" gutterBottom>
-                Thank you for your order.
+                {paymentMessage}
               </Typography>
-              <Typography variant="subtitle1">
-                Your order number is #{orderNumber}. We have emailed your order
-                confirmation, and will send you an update when your order has
-                shipped.
-              </Typography>
+              {paymentSucceeded ? (
+                <Typography variant="subtitle1">
+                  Your order number is #{orderNumber}. We have emailed your
+                  order confirmation, and will send you an update when your
+                  order has shipped.
+                </Typography>
+              ) : (
+                <Button variant="contained" onClick={handleBack}>
+                  Back
+                </Button>
+              )}
             </>
           ) : (
             <form onSubmit={methods.handleSubmit(handleNext)}>
