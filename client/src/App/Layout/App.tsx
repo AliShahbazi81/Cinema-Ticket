@@ -17,7 +17,6 @@ import "react-toastify/dist/ReactToastify.css";
 import NotFound from "../errors/NotFound";
 import BasketPage from "../../Features/basket/BasketPage";
 import LoadingComponent from "./LoadingComponent";
-import CheckoutPage from "../../Features/checkout/CheckoutPage";
 import { useAppDispatch } from "../store/configureStore";
 import { fetchBasketAsync } from "../../Features/basket/basketSlice";
 import Login from "../../Features/account/Login";
@@ -25,6 +24,7 @@ import Register from "../../Features/account/Register";
 import { fetchCurrentUser } from "../../Features/account/accountSlice";
 import { PrivateRoute } from "./PrivateRoute";
 import Orders from "../../Features/orders/Orders";
+import CheckOutWrapper from "../../Features/checkout/CheckoutWrapper";
 
 function App() {
   // Getting the basket from the context
@@ -76,7 +76,7 @@ function App() {
           <Route exact path={"/contact"} component={ContactPage} />
           <Route exact path={"/catalog"} component={Catalog} />
           <Route exact path={"/basket"} component={BasketPage} />
-          <PrivateRoute exact path={"/checkout"} component={CheckoutPage} />
+          <PrivateRoute exact path={"/checkout"} component={CheckOutWrapper} />
           <PrivateRoute exact path={"/orders"} component={Orders} />
           <Route exact path={"/login"} component={Login} />
           <Route exact path={"/register"} component={Register} />
