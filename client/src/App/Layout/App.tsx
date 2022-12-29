@@ -68,21 +68,30 @@ function App() {
       <ToastContainer theme="colored" hideProgressBar position="bottom-right" />
       <CssBaseline />
       <Header darkMode={darkMode} handleThemeChange={handleThemeChange} />
-      <Container>
-        <Switch>
-          <Route exact path={"/"} component={HomePage} />
-          <Route exact path={"/catalog/:id"} component={ProductDetails} />
-          <Route exact path={"/about"} component={AboutPage} />
-          <Route exact path={"/contact"} component={ContactPage} />
-          <Route exact path={"/catalog"} component={Catalog} />
-          <Route exact path={"/basket"} component={BasketPage} />
-          <PrivateRoute exact path={"/checkout"} component={CheckOutWrapper} />
-          <PrivateRoute exact path={"/orders"} component={Orders} />
-          <Route exact path={"/login"} component={Login} />
-          <Route exact path={"/register"} component={Register} />
-          <Route component={NotFound} />
-        </Switch>
-      </Container>
+      <Route exact path={"/"} component={HomePage} />
+      <Route
+        path={"/(.+)"}
+        render={() => (
+          <Container sx={{ mt: 4 }}>
+            <Switch>
+              <Route exact path={"/catalog/:id"} component={ProductDetails} />
+              <Route exact path={"/about"} component={AboutPage} />
+              <Route exact path={"/contact"} component={ContactPage} />
+              <Route exact path={"/catalog"} component={Catalog} />
+              <Route exact path={"/basket"} component={BasketPage} />
+              <PrivateRoute
+                exact
+                path={"/checkout"}
+                component={CheckOutWrapper}
+              />
+              <PrivateRoute exact path={"/orders"} component={Orders} />
+              <Route exact path={"/login"} component={Login} />
+              <Route exact path={"/register"} component={Register} />
+              <Route component={NotFound} />
+            </Switch>
+          </Container>
+        )}
+      />
     </ThemeProvider>
   );
 }

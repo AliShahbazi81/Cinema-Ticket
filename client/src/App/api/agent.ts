@@ -4,7 +4,7 @@ import { PaginatedResponse } from "../Models/pagination";
 import { store } from "../store/configureStore";
 
 // Defining the URL which we want to send an API request to
-axios.defaults.baseURL = "https://localhost:44374/api/";
+axios.defaults.baseURL = process.env.REACT_APP_API_URL;
 axios.defaults.withCredentials = true;
 
 // responseBody is responsible to hold the response from the server
@@ -29,8 +29,9 @@ axios.interceptors.request.use((config) => {
 // We used Toast Notification, instead we could have used Console.log
 axios.interceptors.response.use(
   async (response) => {
-    //! Make sure that "pagination" is the same as the one we wrote in the back-end side
-    await sleep();
+    if (process.env.NODE_ENV === "development")
+      //! Make sure that "pagination" is the same as the one we wrote in the back-end side
+      await sleep();
     const pagination = response.headers["pagination"];
     // If we have pagination, we should return the response which we get from the server
     if (pagination) {
